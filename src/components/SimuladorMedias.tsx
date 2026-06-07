@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Calculator, Info, Plus, Trash2, GripVertical } from "lucide-react";
+import { Calculator, Info, Plus, Trash2 } from "lucide-react";
 
 type Props = {
   onMediaChange: (media: number) => void;
