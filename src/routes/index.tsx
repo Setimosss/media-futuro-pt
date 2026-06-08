@@ -67,9 +67,9 @@ function Index() {
             title="Calcula a tua média"
             subtitle="Simula a média interna e descobre a tua nota final de candidatura em segundos."
           />
-          <div className="mt-10 grid items-start gap-6 lg:grid-cols-2">
+          <div className="mt-10 space-y-6">
             <SimuladorMedias onMediaChange={setMedia} />
-            <div id="candidatura" className="scroll-mt-24">
+            <div id="candidatura" className="mx-auto max-w-2xl scroll-mt-24">
               <CalculadoraCandidatura internalMedia={media} />
             </div>
           </div>
