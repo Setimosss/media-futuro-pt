@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  ArrowLeft,
   Calculator,
   ChevronDown,
   GraduationCap,
@@ -7,6 +8,7 @@ import {
   Plus,
   Target,
   Trash2,
+  TrendingUp,
 } from "lucide-react";
 import { MatrizCenarios } from "./MatrizCenarios";
 
@@ -74,17 +76,36 @@ export function SimuladorMedias({ onMediaChange }: Props) {
   const [activeYear, setActiveYear] = useState<Year>("10");
   const [openSubject, setOpenSubject] = useState<string | null>(null);
 
+  // Modo rápido (frente do cartão): média final direta por ano
+  const [quickGrades, setQuickGrades] = useState<Record<Year, string>>({
+    "10": "",
+    "11": "",
+    "12": "",
+  });
+  const [flipped, setFlipped] = useState(false); // false = frente (rápido) · true = trás (avançado)
+
   const [exams, setExams] = useState<Exam[]>(
     examCatalog.map((name) => ({ id: newId(), name, selected: false, grade: "" })),
   );
 
-  // Média interna (0–20): média de todas as disciplinas com notas, em todos os anos
-  const media = useMemo(() => {
+  // Média do modo rápido (0–20)
+  const quickMedia = useMemo(() => {
+    const vals = years
+      .map((y) => num(quickGrades[y]))
+      .filter((g) => !isNaN(g) && g >= 0 && g <= 20);
+    if (vals.length === 0) return 0;
+    return vals.reduce((a, b) => a + b, 0) / vals.length;
+  }, [quickGrades]);
+
+  // Média do modo avançado (0–20): média de todas as disciplinas com notas
+  const advancedMedia = useMemo(() => {
     const all = years.flatMap((y) => yearsData[y]);
     const avgs = all.map(subjectAverage).filter((v): v is number => v !== null);
     if (avgs.length === 0) return 0;
     return avgs.reduce((a, b) => a + b, 0) / avgs.length;
   }, [yearsData]);
+
+  const media = flipped ? advancedMedia : quickMedia;
 
   useEffect(() => {
     onMediaChange(media);
@@ -200,60 +221,126 @@ export function SimuladorMedias({ onMediaChange }: Props) {
           </div>
         </div>
 
-        {/* ============ COLUNA DIREITA — ANOS E PROGRESSO ============ */}
-        <div className="rounded-3xl border border-border/60 bg-background/30 p-4 sm:p-5">
-          <div className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-primary" />
-            <h4 className="font-display text-base font-bold">Anos & Progresso</h4>
-          </div>
+        {/* ============ COLUNA DIREITA — ANOS E PROGRESSO (CARD FLIP 3D) ============ */}
+        <div className="flip-perspective">
+          <div className={`flip-inner ${flipped ? "is-flipped" : ""}`}>
+            {/* ---------- LADO A (FRENTE) — MODO RÁPIDO ---------- */}
+            <div
+              className={`flip-face rounded-3xl border border-border/60 bg-background/30 p-4 sm:p-5 ${
+                flipped ? "absolute inset-0" : "relative"
+              }`}
+              aria-hidden={flipped}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  <h4 className="font-display text-base font-bold">Média Direta</h4>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFlipped(true)}
+                  className="flex items-center gap-1.5 rounded-full bg-gradient-brand px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-glow-sky transition-transform hover:scale-105"
+                >
+                  <TrendingUp className="h-3.5 w-3.5" />
+                  Acompanhar por Testes
+                </button>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Introduz a média final de cada ano (escala 0–20).
+              </p>
 
-          {/* tabs */}
-          <div className="mt-4 grid grid-cols-3 gap-2">
-            {years.map((y) => (
+              <div className="mt-5 space-y-3">
+                {years.map((y) => (
+                  <div
+                    key={y}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3"
+                  >
+                    <span className="text-sm font-semibold">{y}.º Ano</span>
+                    <input
+                      inputMode="decimal"
+                      value={quickGrades[y]}
+                      onChange={(e) =>
+                        setQuickGrades((g) => ({ ...g, [y]: e.target.value }))
+                      }
+                      placeholder="0–20"
+                      className="w-20 rounded-xl border border-input bg-background/60 px-2 py-2 text-center text-base font-bold text-primary outline-none placeholder:text-muted-foreground/50 focus:border-primary focus:ring-2 focus:ring-primary/40"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ---------- LADO B (TRÁS) — MODO AVANÇADO ---------- */}
+            <div
+              className={`flip-face flip-face-back rounded-3xl border border-border/60 bg-background/30 p-4 sm:p-5 ${
+                flipped ? "relative" : "absolute inset-0"
+              }`}
+              aria-hidden={!flipped}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFlipped(false)}
+                  className="flex items-center gap-1.5 rounded-full border border-input bg-background/40 px-3 py-1.5 text-xs font-bold text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  Média Direta
+                </button>
+                <div className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  <h4 className="font-display text-base font-bold">Anos &amp; Progresso</h4>
+                </div>
+              </div>
+
+              {/* tabs */}
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {years.map((y) => (
+                  <button
+                    key={y}
+                    type="button"
+                    onClick={() => setActiveYear(y)}
+                    className={`rounded-2xl border px-3 py-2 text-sm font-semibold transition-all ${
+                      activeYear === y
+                        ? "border-primary bg-primary/15 text-primary shadow-glow-sky"
+                        : "border-input bg-background/40 text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {y}.º Ano
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-4 space-y-2.5">
+                {yearsData[activeYear].map((s) => {
+                  const avg = subjectAverage(s);
+                  const open = openSubject === s.id;
+                  return (
+                    <SubjectCard
+                      key={s.id}
+                      subject={s}
+                      average={avg}
+                      open={open}
+                      onToggleOpen={() => setOpenSubject(open ? null : s.id)}
+                      onName={(name) => updateSubject(activeYear, s.id, { name })}
+                      onGoal={(goal) => updateSubject(activeYear, s.id, { goal })}
+                      onTest={(tid, grade) => updateTest(activeYear, s.id, tid, grade)}
+                      onAddTest={() => addTest(activeYear, s.id)}
+                      onRemove={() => removeSubject(activeYear, s.id)}
+                    />
+                  );
+                })}
+              </div>
+
               <button
-                key={y}
                 type="button"
-                onClick={() => setActiveYear(y)}
-                className={`rounded-2xl border px-3 py-2 text-sm font-semibold transition-all ${
-                  activeYear === y
-                    ? "border-primary bg-primary/15 text-primary shadow-glow-sky"
-                    : "border-input bg-background/40 text-muted-foreground hover:text-foreground"
-                }`}
+                onClick={() => addSubject(activeYear)}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
               >
-                {y}.º Ano
+                <Plus className="h-4 w-4" />
+                Adicionar disciplina ao {activeYear}.º ano
               </button>
-            ))}
+            </div>
           </div>
-
-          <div className="mt-4 space-y-2.5">
-            {yearsData[activeYear].map((s) => {
-              const avg = subjectAverage(s);
-              const open = openSubject === s.id;
-              return (
-                <SubjectCard
-                  key={s.id}
-                  subject={s}
-                  average={avg}
-                  open={open}
-                  onToggleOpen={() => setOpenSubject(open ? null : s.id)}
-                  onName={(name) => updateSubject(activeYear, s.id, { name })}
-                  onGoal={(goal) => updateSubject(activeYear, s.id, { goal })}
-                  onTest={(tid, grade) => updateTest(activeYear, s.id, tid, grade)}
-                  onAddTest={() => addTest(activeYear, s.id)}
-                  onRemove={() => removeSubject(activeYear, s.id)}
-                />
-              );
-            })}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => addSubject(activeYear)}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-border py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-          >
-            <Plus className="h-4 w-4" />
-            Adicionar disciplina ao {activeYear}.º ano
-          </button>
         </div>
       </div>
 
@@ -271,7 +358,8 @@ export function SimuladorMedias({ onMediaChange }: Props) {
         </div>
         <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
           <Info className="h-3.5 w-3.5" />
-          Média de todas as disciplinas com notas · em escala 0–200: {(media * 10).toFixed(0)} pontos.
+          {flipped ? "Média das disciplinas com notas" : "Média direta dos 3 anos"} · em escala 0–200:{" "}
+          {(media * 10).toFixed(0)} pontos.
         </p>
       </div>
     </div>
@@ -364,7 +452,7 @@ function SubjectCard({
           <div className="flex items-center gap-2">
             <label className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
               <Target className="h-3.5 w-3.5 text-accent" />
-              Meta final
+              Nota Meta
             </label>
             <input
               inputMode="decimal"
@@ -375,9 +463,10 @@ function SubjectCard({
             />
             <span className="text-xs text-muted-foreground">/ 20</span>
 
-            {!hasGoal && (
+            {filled.length === 0 && (
               <MatrizCenarios
                 subjectName={subject.name}
+                goal={hasGoal ? goal : undefined}
                 trigger={
                   <button
                     type="button"
@@ -431,16 +520,20 @@ function SubjectCard({
               }`}
             >
               {prediction.achieved ? (
-                <>Meta já garantida! Mesmo com 0 no(s) teste(s) restante(s) atinges os {goal}.</>
+                <>🎉 Meta já garantida! Mesmo com 0 no(s) teste(s) restante(s) atinges os {goal}.</>
               ) : prediction.impossible ? (
-                <>Meta inalcançável: precisarias de {prediction.needed.toFixed(1)} (máx. 20).</>
+                <>
+                  ⚠️ Meta inalcançável: precisarias de {prediction.needed.toFixed(1)} (máx. 20). Tenta
+                  ajustar a tua meta.
+                </>
               ) : (
                 <>
-                  Precisas de{" "}
+                  🎯 Precisas de tirar no mínimo{" "}
                   <span className="font-display text-sm font-bold">
                     {prediction.needed.toFixed(1)}
                   </span>{" "}
-                  {remaining > 1 ? "em cada teste restante" : "no próximo teste"} para atingires {goal}.
+                  valores {remaining > 1 ? "em cada teste restante" : "no 2.º Teste"} para atingires a
+                  tua meta!
                 </>
               )}
             </div>
