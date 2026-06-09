@@ -50,6 +50,7 @@ function SectionHeader({
 
 function Index() {
   const [media, setMedia] = useState(0);
+  const [selectedCurso, setSelectedCurso] = useState<Curso | null>(null);
 
   return (
     <div className="min-h-screen">
