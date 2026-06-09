@@ -6,7 +6,7 @@ import { Hero } from "@/components/Hero";
 import { SimuladorMedias } from "@/components/SimuladorMedias";
 import { CalculadoraCandidatura } from "@/components/CalculadoraCandidatura";
 import { TendenciaMedias } from "@/components/TendenciaMedias";
-import { ExploradorCursos } from "@/components/ExploradorCursos";
+import { ExploradorCursos, type Curso } from "@/components/ExploradorCursos";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -50,6 +50,7 @@ function SectionHeader({
 
 function Index() {
   const [media, setMedia] = useState(0);
+  const [selectedCurso, setSelectedCurso] = useState<Curso | null>(null);
 
   return (
     <div className="min-h-screen">
@@ -83,7 +84,12 @@ function Index() {
             subtitle="Tendência do último colocado nos últimos 3 anos para planeares com confiança."
           />
           <div className="mt-10">
-            <TendenciaMedias />
+            <TendenciaMedias curso={selectedCurso} />
+            <p className="mt-3 text-center text-xs text-muted-foreground/70">
+              {selectedCurso
+                ? "Tendência do curso selecionado na pesquisa abaixo."
+                : "Seleciona um curso na secção \u201cExplora os cursos\u201d para ver a tendência."}
+            </p>
           </div>
         </section>
 
@@ -92,10 +98,18 @@ function Index() {
           <SectionHeader
             badge="Passo 2"
             title="Explora os cursos"
-            subtitle="Pesquisa, filtra por área e descobre em que cursos entras com a tua nota."
+            subtitle="Pesquisa por curso ou instituição, filtra por tipo de ensino e natureza, e clica num curso para ver a tendência das notas."
           />
           <div className="mt-10">
-            <ExploradorCursos />
+            <ExploradorCursos
+              selectedId={selectedCurso?.id}
+              onSelectCourse={(c) => {
+                setSelectedCurso(c);
+                document
+                  .getElementById("tendencia")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            />
           </div>
         </section>
       </main>
