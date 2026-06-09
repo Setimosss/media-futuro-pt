@@ -84,7 +84,12 @@ function Index() {
             subtitle="Tendência do último colocado nos últimos 3 anos para planeares com confiança."
           />
           <div className="mt-10">
-            <TendenciaMedias />
+            <TendenciaMedias curso={selectedCurso} />
+            <p className="mt-3 text-center text-xs text-muted-foreground/70">
+              {selectedCurso
+                ? "Tendência do curso selecionado na pesquisa abaixo."
+                : "Seleciona um curso na secção \u201cExplora os cursos\u201d para ver a tendência."}
+            </p>
           </div>
         </section>
 
