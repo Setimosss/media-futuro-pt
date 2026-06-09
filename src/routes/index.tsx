@@ -115,6 +115,11 @@ function Index() {
           <p className="text-xs text-muted-foreground/70">
             © {new Date().getFullYear()} UniCalc PT. Feito para estudantes portugueses.
           </p>
+          <div className="pt-4">
+            <p className="text-xs font-light tracking-wide text-slate-400">
+              Criado com <span className="text-accent">♥</span> por MADS
+            </p>
+          </div>
         </div>
       </footer>
     </div>
