@@ -98,10 +98,18 @@ function Index() {
           <SectionHeader
             badge="Passo 2"
             title="Explora os cursos"
-            subtitle="Pesquisa, filtra por área e descobre em que cursos entras com a tua nota."
+            subtitle="Pesquisa por curso ou instituição, filtra por tipo de ensino e natureza, e clica num curso para ver a tendência das notas."
           />
           <div className="mt-10">
-            <ExploradorCursos />
+            <ExploradorCursos
+              selectedId={selectedCurso?.id}
+              onSelectCourse={(c) => {
+                setSelectedCurso(c);
+                document
+                  .getElementById("tendencia")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            />
           </div>
         </section>
       </main>
