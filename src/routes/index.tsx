@@ -6,7 +6,7 @@ import { Hero } from "@/components/Hero";
 import { SimuladorMedias } from "@/components/SimuladorMedias";
 import { CalculadoraCandidatura } from "@/components/CalculadoraCandidatura";
 import { TendenciaMedias } from "@/components/TendenciaMedias";
-import { ExploradorCursos } from "@/components/ExploradorCursos";
+import { ExploradorCursos, type Curso } from "@/components/ExploradorCursos";
 
 export const Route = createFileRoute("/")({
   head: () => ({
