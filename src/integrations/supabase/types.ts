@@ -14,7 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      unicalc_cursos: {
+        Row: {
+          area: string | null
+          cidade: string | null
+          created_at: string
+          id: string
+          media_2022: number | null
+          media_2023: number | null
+          media_2024: number | null
+          natureza: string | null
+          nome_curso: string
+          nome_instituicao: string
+          tipo_ensino: string | null
+          vagas: number | null
+        }
+        Insert: {
+          area?: string | null
+          cidade?: string | null
+          created_at?: string
+          id?: string
+          media_2022?: number | null
+          media_2023?: number | null
+          media_2024?: number | null
+          natureza?: string | null
+          nome_curso: string
+          nome_instituicao: string
+          tipo_ensino?: string | null
+          vagas?: number | null
+        }
+        Update: {
+          area?: string | null
+          cidade?: string | null
+          created_at?: string
+          id?: string
+          media_2022?: number | null
+          media_2023?: number | null
+          media_2024?: number | null
+          natureza?: string | null
+          nome_curso?: string
+          nome_instituicao?: string
+          tipo_ensino?: string | null
+          vagas?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
