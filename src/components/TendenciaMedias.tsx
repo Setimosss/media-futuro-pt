@@ -8,20 +8,25 @@ import {
   CartesianGrid,
 } from "recharts";
 import { LineChart as LineChartIcon, TrendingUp, MousePointerClick } from "lucide-react";
-import type { Curso } from "./ExploradorCursos";
+import type { Curso } from "@/types/curso";
 
-export function TendenciaMedias({ curso }: { curso: Curso | null }) {
+export function TendenciaMedias({ curso }: { curso?: Curso | null }) {
   if (!curso) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-3xl glass p-12 text-center">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
-          <MousePointerClick className="h-6 w-6" />
-        </span>
-        <h3 className="font-display text-xl font-bold">Seleciona um curso</h3>
-        <p className="max-w-sm text-sm text-muted-foreground">
-          Escolhe um curso na pesquisa acima para veres a evolução da nota do último
-          colocado nos últimos 3 anos.
-        </p>
+      <div className="rounded-3xl glass p-6 sm:p-8">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+            <LineChartIcon className="h-5 w-5" />
+          </span>
+          <div>
+            <h3 className="font-display text-xl font-bold">Tendência das médias</h3>
+            <p className="text-sm text-muted-foreground">Último colocado — 3 anos</p>
+          </div>
+        </div>
+        <div className="mt-8 flex h-64 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
+          <MousePointerClick className="h-8 w-8" />
+          <p>Seleciona um curso no explorador para veres a evolução das notas.</p>
+        </div>
       </div>
     );
   }
@@ -49,7 +54,7 @@ export function TendenciaMedias({ curso }: { curso: Curso | null }) {
           </div>
         </div>
 
-        {history.length >= 2 && (
+        {history.length > 1 && (
           <div className="flex items-center gap-2 text-sm">
             <span
               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold ${
@@ -66,9 +71,9 @@ export function TendenciaMedias({ curso }: { curso: Curso | null }) {
       </div>
 
       {history.length === 0 ? (
-        <p className="mt-8 text-sm text-muted-foreground">
-          Sem dados de médias disponíveis para este curso.
-        </p>
+        <div className="mt-8 flex h-48 items-center justify-center text-center text-muted-foreground">
+          <p>Sem dados históricos para este curso.</p>
+        </div>
       ) : (
         <div className="mt-6 h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
