@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { GraduationCap } from "lucide-react";
+import type { Curso } from "@/types/curso";
 import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { SimuladorMedias } from "@/components/SimuladorMedias";
