@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, MapPin, Users, Compass, CheckCircle2, Target, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,9 +39,15 @@ export function ExploradorCursos({
   const [natureza, setNatureza] = useState<Natureza>("all");
   const [tipoEnsino, setTipoEnsino] = useState<TipoEnsino>("all");
   const [myGrade, setMyGrade] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [query]);
 
   const grade = parseFloat(myGrade.replace(",", ".")) || 0;
-  const q = query.trim();
+  const q = debouncedQuery;
 
   const { data: cursos = [], isLoading, error } = useQuery({
     queryKey: ["cursos", q, natureza, tipoEnsino],
@@ -54,7 +60,8 @@ export function ExploradorCursos({
 
       // Filtro de pesquisa dinâmico (>= 3 letras) em snake_case
       if (q.length >= 3) {
-        req = req.or(`nome_curso.ilike.%${q}%,nome_instituicao.ilike.%${q}%`);
+        const safeQ = q.replace(/[%_]/g, "\\$&");
+        req = req.or(`nome_curso.ilike.%${safeQ}%,nome_instituicao.ilike.%${safeQ}%`);
       }
       if (natureza !== "all") req = req.eq("natureza", natureza);
       if (tipoEnsino !== "all") req = req.eq("tipo_ensino", tipoEnsino);
@@ -63,7 +70,7 @@ export function ExploradorCursos({
         .order("media_2024", { ascending: false, nullsFirst: false })
         .limit(200);
 
-      console.log("Dados recebidos:", data);
+      console.log("Query term:", q, "Dados recebidos:", data);
       if (error) {
         console.error("Erro Supabase:", error);
         throw error;
