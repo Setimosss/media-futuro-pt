@@ -90,7 +90,7 @@ function Index() {
             subtitle="Tendência do último colocado nos últimos 3 anos para planeares com confiança."
           />
           <div className="mt-10">
-            <TendenciaMedias />
+            <TendenciaMedias curso={selectedCurso} />
           </div>
         </section>
 
