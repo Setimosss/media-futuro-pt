@@ -102,7 +102,7 @@ function Index() {
             subtitle="Pesquisa, filtra por área e descobre em que cursos entras com a tua nota."
           />
           <div className="mt-10">
-            <ExploradorCursos />
+            <ExploradorCursos onSelect={handleSelectCurso} />
           </div>
         </section>
       </main>
