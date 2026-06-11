@@ -173,12 +173,6 @@ export function ExploradorCursos({
                 <p className="mt-1 text-sm text-muted-foreground">{c.nome_instituicao}</p>
 
                 <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                  {c.cidade && (
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {c.cidade}
-                    </span>
-                  )}
                   {c.vagas_estimadas != null && (
                     <span className="flex items-center gap-1">
                       <Users className="h-3.5 w-3.5" />
