@@ -75,7 +75,7 @@ export function ExploradorCursos({
         console.error("Erro Supabase:", error);
         throw error;
       }
-      return (data ?? []) as Curso[];
+      return (data ?? []) as unknown as Curso[];
     },
   });
 
