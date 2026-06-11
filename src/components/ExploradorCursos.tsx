@@ -55,7 +55,7 @@ export function ExploradorCursos({
       let req = supabase
         .from("unicalc_cursos")
         .select(
-          "id, codigo_instituicao, nome_instituicao, tipo_ensino, natureza, codigo_curso, nome_curso, grau, vagas_estimadas, media_2024, media_2023, media_2022",
+          "id, nome_instituicao, tipo_ensino, natureza, nome_curso, grau:area, vagas_estimadas:vagas, media_2024, media_2023, media_2022",
         );
 
       // Filtro de pesquisa dinâmico (>= 3 letras) em snake_case
