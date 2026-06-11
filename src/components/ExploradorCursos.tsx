@@ -58,8 +58,8 @@ export function ExploradorCursos({
           "id, nome_instituicao, tipo_ensino, natureza, nome_curso, grau:area, vagas_estimadas:vagas, media_2024, media_2023, media_2022",
         );
 
-      // Filtro de pesquisa dinâmico (>= 3 letras) em snake_case
-      if (q.length >= 3) {
+      // Filtro de pesquisa dinâmico (>= 2 letras) em snake_case
+      if (q.length >= 2) {
         const safeQ = q.replace(/[%_]/g, "\\$&");
         req = req.or(`nome_curso.ilike.%${safeQ}%,nome_instituicao.ilike.%${safeQ}%`);
       }
@@ -70,11 +70,8 @@ export function ExploradorCursos({
         .order("media_2024", { ascending: false, nullsFirst: false })
         .limit(200);
 
-      console.log("Query term:", q, "Dados recebidos:", data);
-      if (error) {
-        console.error("Erro Supabase:", error);
-        throw error;
-      }
+      console.log("Query term:", q, "Dados recebidos:", data, "Erro:", error);
+      if (error) throw error;
       return (data ?? []) as unknown as Curso[];
     },
   });
