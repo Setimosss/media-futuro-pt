@@ -55,7 +55,7 @@ export function ExploradorCursos({
       let req = supabase
         .from("unicalc_cursos")
         .select(
-          "id, nome_curso, nome_instituicao, cidade, area, tipo_ensino, natureza, vagas, media_2024, media_2023, media_2022",
+          "id, codigo_instituicao, nome_instituicao, tipo_ensino, natureza, codigo_curso, nome_curso, grau, vagas_estimadas, media_2024, media_2023, media_2022",
         );
 
       // Filtro de pesquisa dinâmico (>= 3 letras) em snake_case
@@ -164,7 +164,7 @@ export function ExploradorCursos({
               >
                 <div className="flex items-start justify-between gap-3">
                   <span className="rounded-full bg-primary/15 px-2.5 py-1 text-xs font-semibold text-primary">
-                    {c.area ?? c.tipo_ensino ?? "Curso"}
+                    {c.grau ?? c.tipo_ensino ?? "Curso"}
                   </span>
                   <MiniBars curso={c} />
                 </div>
@@ -179,10 +179,10 @@ export function ExploradorCursos({
                       {c.cidade}
                     </span>
                   )}
-                  {c.vagas != null && (
+                  {c.vagas_estimadas != null && (
                     <span className="flex items-center gap-1">
                       <Users className="h-3.5 w-3.5" />
-                      {c.vagas} vagas
+                      {c.vagas_estimadas} vagas
                     </span>
                   )}
                 </div>
