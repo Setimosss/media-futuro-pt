@@ -16,9 +16,9 @@ export type Database = {
     Tables: {
       unicalc_cursos: {
         Row: {
-          area: string | null
           cidade: string | null
           created_at: string
+          grau: string | null
           id: string
           media_2022: number | null
           media_2023: number | null
@@ -27,12 +27,12 @@ export type Database = {
           nome_curso: string
           nome_instituicao: string
           tipo_ensino: string | null
-          vagas: number | null
+          vagas_estimadas: number | null
         }
         Insert: {
-          area?: string | null
           cidade?: string | null
           created_at?: string
+          grau?: string | null
           id?: string
           media_2022?: number | null
           media_2023?: number | null
@@ -41,12 +41,12 @@ export type Database = {
           nome_curso: string
           nome_instituicao: string
           tipo_ensino?: string | null
-          vagas?: number | null
+          vagas_estimadas?: number | null
         }
         Update: {
-          area?: string | null
           cidade?: string | null
           created_at?: string
+          grau?: string | null
           id?: string
           media_2022?: number | null
           media_2023?: number | null
@@ -55,7 +55,7 @@ export type Database = {
           nome_curso?: string
           nome_instituicao?: string
           tipo_ensino?: string | null
-          vagas?: number | null
+          vagas_estimadas?: number | null
         }
         Relationships: []
       }
