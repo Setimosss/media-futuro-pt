@@ -67,8 +67,8 @@ export function ExploradorCursos({
       if (tipoEnsino !== "all") req = req.eq("tipo_ensino", tipoEnsino);
 
       const { data, error } = await req
-        .order("media_2024", { ascending: false, nullsFirst: false })
-        .limit(200);
+        .order("nome_curso", { ascending: true })
+        .limit(500);
 
       console.log("Query term:", q, "Dados recebidos:", data, "Erro:", error);
       if (error) throw error;
