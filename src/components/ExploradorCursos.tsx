@@ -60,8 +60,7 @@ export function ExploradorCursos({
 
       // Filtro de pesquisa dinâmico (>= 2 letras) em snake_case
       if (q.length >= 2) {
-        const safeQ = q.replace(/[%_]/g, "\\$&");
-        req = req.or(`nome_curso.ilike.%${safeQ}%,nome_instituicao.ilike.%${safeQ}%`);
+        req = req.or(`nome_curso.ilike.%${q}%,nome_instituicao.ilike.%${q}%`);
       }
       if (natureza !== "all") req = req.eq("natureza", natureza);
       if (tipoEnsino !== "all") req = req.eq("tipo_ensino", tipoEnsino);
