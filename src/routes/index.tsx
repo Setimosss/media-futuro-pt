@@ -51,6 +51,7 @@ function SectionHeader({
 
 function Index() {
   const [media, setMedia] = useState(0);
+  const [examGrade, setExamGrade] = useState(0);
   const [selectedCurso, setSelectedCurso] = useState<Curso | null>(null);
 
   const handleSelectCurso = (curso: Curso) => {
@@ -75,9 +76,9 @@ function Index() {
             subtitle="Simula a média interna e descobre a tua nota final de candidatura em segundos."
           />
           <div className="mt-10 space-y-6">
-            <SimuladorMedias onMediaChange={setMedia} />
+            <SimuladorMedias onMediaChange={setMedia} onExamChange={setExamGrade} />
             <div id="candidatura" className="mx-auto max-w-2xl scroll-mt-24">
-              <CalculadoraCandidatura internalMedia={media} />
+              <CalculadoraCandidatura internalMedia={media} examGrade={examGrade} />
             </div>
           </div>
         </section>
