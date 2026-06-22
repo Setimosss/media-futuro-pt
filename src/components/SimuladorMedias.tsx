@@ -14,6 +14,7 @@ import { MatrizCenarios } from "./MatrizCenarios";
 
 type Props = {
   onMediaChange: (media: number) => void;
+  onExamChange?: (examGrade: number) => void;
 };
 
 type Year = "10" | "11" | "12";
@@ -71,7 +72,7 @@ function subjectAverage(s: Subject): number | null {
   return filled.reduce((a, b) => a + b, 0) / filled.length;
 }
 
-export function SimuladorMedias({ onMediaChange }: Props) {
+export function SimuladorMedias({ onMediaChange, onExamChange }: Props) {
   const [yearsData, setYearsData] = useState<Record<Year, Subject[]>>(initialYears);
   const [activeYear, setActiveYear] = useState<Year>("10");
   const [openSubject, setOpenSubject] = useState<string | null>(null);
@@ -107,9 +108,24 @@ export function SimuladorMedias({ onMediaChange }: Props) {
 
   const media = flipped ? advancedMedia : quickMedia;
 
+  const selectedExams = exams.filter((e) => e.selected);
+
+  // Média dos exames selecionados com nota preenchida (escala 0–200)
+  const examAverage = useMemo(() => {
+    const vals = selectedExams
+      .map((e) => parseFloat(e.grade.replace(",", ".")))
+      .filter((g) => !isNaN(g) && g >= 0 && g <= 200);
+    if (vals.length === 0) return 0;
+    return vals.reduce((a, b) => a + b, 0) / vals.length;
+  }, [selectedExams]);
+
   useEffect(() => {
     onMediaChange(media);
   }, [media, onMediaChange]);
+
+  useEffect(() => {
+    onExamChange?.(examAverage);
+  }, [examAverage, onExamChange]);
 
   const percent = Math.min(100, (media / 20) * 100);
 
@@ -151,8 +167,6 @@ export function SimuladorMedias({ onMediaChange }: Props) {
     setExams((list) => list.map((e) => (e.id === id ? { ...e, selected: !e.selected } : e)));
   const updateExamGrade = (id: string, grade: string) =>
     setExams((list) => list.map((e) => (e.id === id ? { ...e, grade } : e)));
-
-  const selectedExams = exams.filter((e) => e.selected);
 
   return (
     <div className="rounded-3xl glass p-5 sm:p-7">
