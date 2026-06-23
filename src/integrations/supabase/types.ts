@@ -28,6 +28,7 @@ export type Database = {
           nome_instituicao: string
           tipo_ensino: string | null
           vagas_estimadas: number | null
+          distrito: string | null
         }
         Insert: {
           cidade?: string | null
@@ -42,6 +43,7 @@ export type Database = {
           nome_instituicao: string
           tipo_ensino?: string | null
           vagas_estimadas?: number | null
+          distrito?: string | null
         }
         Update: {
           cidade?: string | null
@@ -56,6 +58,7 @@ export type Database = {
           nome_instituicao?: string
           tipo_ensino?: string | null
           vagas_estimadas?: number | null
+          distrito?: string | null
         }
         Relationships: []
       }

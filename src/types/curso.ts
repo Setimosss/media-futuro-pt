@@ -9,4 +9,5 @@ export interface Curso {
   media_2024: number | null;
   media_2023: number | null;
   media_2022: number | null;
+  distrito?: string | null; 
 }

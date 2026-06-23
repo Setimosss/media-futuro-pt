@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Users, Compass, CheckCircle2, Target, Loader2, Plus, TrendingUp, TrendingDown, GitCompare, X, Trophy, GraduationCap, BookOpen } from "lucide-react";
+import { Search, Users, Compass, CheckCircle2, Target, Loader2, Plus, TrendingUp, TrendingDown, GitCompare, X, Trophy, GraduationCap, BookOpen, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Curso } from "@/types/curso";
 
@@ -10,6 +10,13 @@ type ModoTabela = "licenciaturas" | "ctesps";
 
 const PAGE_SIZE = 17;
 const MAX_COMPARE = 3;
+
+const DISTRITOS = [
+  "Aveiro", "Beja", "Braga", "Bragança", "Castelo Branco", "Coimbra",
+  "Évora", "Faro", "Guarda", "Leiria", "Lisboa", "Portalegre",
+  "Porto", "Santarém", "Setúbal", "Viana do Castelo", "Vila Real",
+  "Viseu", "Açores", "Madeira",
+];
 
 // ============================================================
 // MiniBars
@@ -55,10 +62,7 @@ function TrendAlert({ curso }: { curso: Curso }) {
 // Barra discreta no fundo (estilo Worten)
 // ============================================================
 function ComparadorBar({
-  cursos,
-  onRemove,
-  onClear,
-  onOpen,
+  cursos, onRemove, onClear, onOpen,
 }: {
   cursos: Curso[];
   onRemove: (id: string) => void;
@@ -66,7 +70,6 @@ function ComparadorBar({
   onOpen: () => void;
 }) {
   if (cursos.length === 0) return null;
-
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 sm:px-6">
       <div className="mx-auto max-w-5xl rounded-2xl glass border border-border/60 shadow-2xl backdrop-blur-2xl">
@@ -98,9 +101,7 @@ function ComparadorBar({
               Limpar
             </button>
             <button
-              type="button"
-              onClick={onOpen}
-              disabled={cursos.length < 2}
+              type="button" onClick={onOpen} disabled={cursos.length < 2}
               className="flex items-center gap-1.5 rounded-xl bg-gradient-brand px-4 py-2 text-sm font-bold text-primary-foreground shadow-glow-sky transition-all hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               <GitCompare className="h-4 w-4" />
@@ -117,10 +118,7 @@ function ComparadorBar({
 // Modal de comparação
 // ============================================================
 function ComparadorModal({
-  cursos,
-  onRemove,
-  onClose,
-  myGrade,
+  cursos, onRemove, onClose, myGrade,
 }: {
   cursos: Curso[];
   onRemove: (id: string) => void;
@@ -136,7 +134,6 @@ function ComparadorModal({
     { label: "2023", render: (c: Curso) => c.media_2023 != null ? c.media_2023.toFixed(1) : "—" },
     { label: "2024", render: (c: Curso) => c.media_2024 != null ? c.media_2024.toFixed(1) : "—" },
   ] satisfies { label: string; render: (c: Curso) => string }[];
-
   const numericRows = ["2022", "2023", "2024", "Vagas"];
 
   return (
@@ -229,6 +226,7 @@ export function ExploradorCursos({
   const [query, setQuery] = useState("");
   const [natureza, setNatureza] = useState<Natureza>("all");
   const [tipoEnsino, setTipoEnsino] = useState<TipoEnsino>("all");
+  const [distrito, setDistrito] = useState("all");
   const [myGrade, setMyGrade] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
@@ -243,20 +241,20 @@ export function ExploradorCursos({
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [debouncedQuery, natureza, tipoEnsino, modo]);
+  }, [debouncedQuery, natureza, tipoEnsino, distrito, modo]);
 
-  // Limpar comparador ao trocar de modo
   useEffect(() => {
     setComparar([]);
+    setDistrito("all");
   }, [modo]);
 
   const grade = parseFloat(myGrade.replace(",", ".")) || 0;
   const q = debouncedQuery;
-  const isSearching = q.length >= 2 || natureza !== "all" || tipoEnsino !== "all";
+  const isSearching = q.length >= 2 || natureza !== "all" || tipoEnsino !== "all" || distrito !== "all";
   const isCtesp = modo === "ctesps";
 
   const { data: cursos = [], isLoading, error } = useQuery({
-    queryKey: ["cursos", q, natureza, tipoEnsino, modo],
+    queryKey: ["cursos", q, natureza, tipoEnsino, distrito, modo],
     queryFn: async () => {
       const FETCH_SIZE = 1000;
       let allData: Curso[] = [];
@@ -264,17 +262,32 @@ export function ExploradorCursos({
       const tabela = isCtesp ? "unicalc_ctesps" : "unicalc_cursos";
 
       while (true) {
-        let req = supabase
-          .from(tabela)
-          .select("id, nome_instituicao, tipo_ensino, natureza, nome_curso, grau, vagas_estimadas, media_2024, media_2023, media_2022");
+        const columns = "id, nome_instituicao, tipo_ensino, natureza, nome_curso, grau, vagas_estimadas, media_2024, media_2023, media_2022";
+        const columnsWithDistrito = `${columns}, distrito`;
 
-        if (q.length >= 2) req = req.or(`nome_curso.ilike.%${q}%,nome_instituicao.ilike.%${q}%`);
-        if (!isCtesp) {
-          if (natureza !== "all") req = req.eq("natureza", natureza);
-          if (tipoEnsino !== "all") req = req.eq("tipo_ensino", tipoEnsino);
+        let result;
+
+        if (isCtesp) {
+          result = await supabase
+            .from("unicalc_ctesps")
+            .select(columns)
+            .or(`nome_curso.ilike.%${q}%,nome_instituicao.ilike.%${q}%`)
+            .order("nome_curso", { ascending: true })
+            .range(from, from + FETCH_SIZE - 1);
+        } else {
+          const req = supabase
+            .from("unicalc_cursos")
+            .select(columnsWithDistrito)
+            .or(`nome_curso.ilike.%${q}%,nome_instituicao.ilike.%${q}%`);
+
+          if (natureza !== "all") req.eq("natureza", natureza);
+          if (tipoEnsino !== "all") req.eq("tipo_ensino", tipoEnsino);
+          if (distrito !== "all") req.eq("distrito", distrito);
+
+          result = await req.order("nome_curso", { ascending: true }).range(from, from + FETCH_SIZE - 1);
         }
 
-        const { data, error } = await req.order("nome_curso", { ascending: true }).range(from, from + FETCH_SIZE - 1);
+        const { data, error } = result;
 
         if (error) throw error;
         if (!data || data.length === 0) break;
@@ -284,21 +297,12 @@ export function ExploradorCursos({
       }
 
       if (!isSearching) {
-        // Separar cursos com e sem média
-        const comMedia = allData.filter(
-          (c) => c.media_2024 != null || c.media_2023 != null || c.media_2022 != null,
-        );
-        const semMedia = allData.filter(
-          (c) => c.media_2024 == null && c.media_2023 == null && c.media_2022 == null,
-        );
-
-        // Baralhar só os que têm média
+        const comMedia = allData.filter(c => c.media_2024 != null || c.media_2023 != null || c.media_2022 != null);
+        const semMedia = allData.filter(c => c.media_2024 == null && c.media_2023 == null && c.media_2022 == null);
         for (let i = comMedia.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [comMedia[i], comMedia[j]] = [comMedia[j], comMedia[i]];
         }
-
-        // Colocar os sem média no fim
         allData = [...comMedia, ...semMedia];
       }
       return allData;
@@ -327,9 +331,7 @@ export function ExploradorCursos({
             type="button"
             onClick={() => setModo("licenciaturas")}
             className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all ${
-              modo === "licenciaturas"
-                ? "bg-gradient-brand text-primary-foreground shadow-glow-sky"
-                : "text-muted-foreground hover:text-foreground"
+              modo === "licenciaturas" ? "bg-gradient-brand text-primary-foreground shadow-glow-sky" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <GraduationCap className="h-4 w-4" />
@@ -339,9 +341,7 @@ export function ExploradorCursos({
             type="button"
             onClick={() => setModo("ctesps")}
             className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all ${
-              modo === "ctesps"
-                ? "bg-gradient-brand text-primary-foreground shadow-glow-sky"
-                : "text-muted-foreground hover:text-foreground"
+              modo === "ctesps" ? "bg-gradient-brand text-primary-foreground shadow-glow-sky" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             <BookOpen className="h-4 w-4" />
@@ -370,9 +370,8 @@ export function ExploradorCursos({
         </div>
 
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          {/* Filtros de natureza/tipo só para licenciaturas */}
           {!isCtesp && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <FilterChip active={natureza === "all"} onClick={() => setNatureza("all")}>Todas</FilterChip>
               <FilterChip active={natureza === "Público"} onClick={() => setNatureza("Público")}>Público</FilterChip>
               <FilterChip active={natureza === "Privado"} onClick={() => setNatureza("Privado")}>Privado</FilterChip>
@@ -380,6 +379,25 @@ export function ExploradorCursos({
               <FilterChip active={tipoEnsino === "all"} onClick={() => setTipoEnsino("all")}>Todos</FilterChip>
               <FilterChip active={tipoEnsino === "Universitário"} onClick={() => setTipoEnsino("Universitário")}>Universitário</FilterChip>
               <FilterChip active={tipoEnsino === "Politécnico"} onClick={() => setTipoEnsino("Politécnico")}>Politécnico</FilterChip>
+              <span className="mx-1 self-center text-muted-foreground/40">|</span>
+              {/* Filtro de distrito */}
+              <div className="relative flex items-center">
+                <MapPin className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                <select
+                  value={distrito}
+                  onChange={(e) => setDistrito(e.target.value)}
+                  className={`rounded-full py-1.5 pl-7 pr-3 text-sm font-medium transition-all outline-none cursor-pointer ${
+                    distrito !== "all"
+                      ? "bg-gradient-brand text-primary-foreground shadow-glow-sky"
+                      : "glass text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <option value="all">Distrito</option>
+                  {DISTRITOS.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           )}
           {isCtesp && <div />}
@@ -416,7 +434,7 @@ export function ExploradorCursos({
           {!error && cursos.length > 0 && (
             <p className="mt-4 text-xs text-muted-foreground/60">
               {isSearching
-                ? `${cursos.length} ${isCtesp ? "CTeSP" : "curso"}${cursos.length !== 1 ? "s" : ""} encontrado${cursos.length !== 1 ? "s" : ""}`
+                ? `${cursos.length} ${isCtesp ? "CTeSP" : "curso"}${cursos.length !== 1 ? "s" : ""} encontrado${cursos.length !== 1 ? "s" : ""}${distrito !== "all" ? ` em ${distrito}` : ""}`
                 : `A mostrar ${isCtesp ? "CTeSPs" : "cursos"} em destaque`}
             </p>
           )}
@@ -485,9 +503,7 @@ export function ExploradorCursos({
                     {isCtesp ? (
                       <div>
                         <div className="text-xs text-muted-foreground">Admissão</div>
-                        <div className="mt-0.5 text-sm font-semibold text-muted-foreground">
-                          Concurso local
-                        </div>
+                        <div className="mt-0.5 text-sm font-semibold text-muted-foreground">Concurso local</div>
                       </div>
                     ) : (
                       <>
@@ -556,9 +572,7 @@ export function ExploradorCursos({
 // FilterChip
 // ============================================================
 function FilterChip({
-  active,
-  onClick,
-  children,
+  active, onClick, children,
 }: {
   active: boolean;
   onClick: () => void;
@@ -569,9 +583,7 @@ function FilterChip({
       type="button"
       onClick={onClick}
       className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-all ${
-        active
-          ? "bg-gradient-brand text-primary-foreground shadow-glow-sky"
-          : "glass text-muted-foreground hover:text-foreground"
+        active ? "bg-gradient-brand text-primary-foreground shadow-glow-sky" : "glass text-muted-foreground hover:text-foreground"
       }`}
     >
       {children}
