@@ -284,10 +284,22 @@ export function ExploradorCursos({
       }
 
       if (!isSearching) {
-        for (let i = allData.length - 1; i > 0; i--) {
+        // Separar cursos com e sem média
+        const comMedia = allData.filter(
+          (c) => c.media_2024 != null || c.media_2023 != null || c.media_2022 != null,
+        );
+        const semMedia = allData.filter(
+          (c) => c.media_2024 == null && c.media_2023 == null && c.media_2022 == null,
+        );
+
+        // Baralhar só os que têm média
+        for (let i = comMedia.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
-          [allData[i], allData[j]] = [allData[j], allData[i]];
+          [comMedia[i], comMedia[j]] = [comMedia[j], comMedia[i]];
         }
+
+        // Colocar os sem média no fim
+        allData = [...comMedia, ...semMedia];
       }
       return allData;
     },
