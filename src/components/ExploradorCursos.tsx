@@ -1,11 +1,12 @@
 import { useMemo, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Users, Compass, CheckCircle2, Target, Loader2, Plus, TrendingUp, TrendingDown, GitCompare, X, Trophy } from "lucide-react";
+import { Search, Users, Compass, CheckCircle2, Target, Loader2, Plus, TrendingUp, TrendingDown, GitCompare, X, Trophy, GraduationCap, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Curso } from "@/types/curso";
 
 type Natureza = "all" | "Público" | "Privado";
 type TipoEnsino = "all" | "Universitário" | "Politécnico";
+type ModoTabela = "licenciaturas" | "ctesps";
 
 const PAGE_SIZE = 17;
 const MAX_COMPARE = 3;
@@ -70,26 +71,18 @@ function ComparadorBar({
     <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 sm:px-6">
       <div className="mx-auto max-w-5xl rounded-2xl glass border border-border/60 shadow-2xl backdrop-blur-2xl">
         <div className="flex flex-wrap items-center gap-3 px-4 py-3">
-          {/* Contador */}
           <div className="shrink-0">
             <div className="text-xs font-semibold text-muted-foreground">Comparador</div>
             <div className="font-display text-sm font-bold">{cursos.length}/{MAX_COMPARE}</div>
           </div>
-
           <div className="h-8 w-px bg-border/60 shrink-0 hidden sm:block" />
-
-          {/* Slots */}
           <div className="flex flex-1 flex-wrap items-center gap-2">
             {Array.from({ length: MAX_COMPARE }).map((_, i) => {
               const c = cursos[i];
               return c ? (
                 <div key={c.id} className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-3 py-1.5">
                   <span className="max-w-[160px] truncate text-xs font-semibold">{c.nome_curso}</span>
-                  <button
-                    type="button"
-                    onClick={() => onRemove(c.id)}
-                    className="shrink-0 rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-destructive/15 hover:text-destructive"
-                  >
+                  <button type="button" onClick={() => onRemove(c.id)} className="shrink-0 rounded-full p-0.5 text-muted-foreground transition-colors hover:bg-destructive/15 hover:text-destructive">
                     <X className="h-3 w-3" />
                   </button>
                 </div>
@@ -100,14 +93,8 @@ function ComparadorBar({
               );
             })}
           </div>
-
-          {/* Ações */}
           <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              onClick={onClear}
-              className="rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-            >
+            <button type="button" onClick={onClear} className="rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
               Limpar
             </button>
             <button
@@ -127,7 +114,7 @@ function ComparadorBar({
 }
 
 // ============================================================
-// Modal de comparação (sheet que sobe da parte inferior)
+// Modal de comparação
 // ============================================================
 function ComparadorModal({
   cursos,
@@ -153,33 +140,18 @@ function ComparadorModal({
   const numericRows = ["2022", "2023", "2024", "Vagas"];
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-5xl mx-4 mb-4 rounded-3xl glass border border-border/60 shadow-2xl overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
+    <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
+      <div className="w-full max-w-5xl mx-4 mb-4 rounded-3xl glass border border-border/60 shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
             <GitCompare className="h-5 w-5 text-primary" />
             <span className="font-display text-lg font-bold">Comparador</span>
-            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">
-              {cursos.length}/{MAX_COMPARE}
-            </span>
+            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">{cursos.length}/{MAX_COMPARE}</span>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          >
+          <button type="button" onClick={onClose} className="rounded-xl p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
-
-        {/* Tabela */}
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -196,16 +168,11 @@ function ComparadorModal({
                           <div className="mt-0.5 text-xs text-muted-foreground">{c.nome_instituicao}</div>
                           {eligible && (
                             <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent">
-                              <Trophy className="h-3 w-3" />
-                              Entras!
+                              <Trophy className="h-3 w-3" />Entras!
                             </span>
                           )}
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => onRemove(c.id)}
-                          className="shrink-0 rounded-lg p-1 text-muted-foreground transition-colors hover:bg-destructive/15 hover:text-destructive"
-                        >
+                        <button type="button" onClick={() => onRemove(c.id)} className="shrink-0 rounded-lg p-1 text-muted-foreground transition-colors hover:bg-destructive/15 hover:text-destructive">
                           <X className="h-3.5 w-3.5" />
                         </button>
                       </div>
@@ -217,31 +184,20 @@ function ComparadorModal({
             <tbody>
               {rows.map((row) => {
                 const isNumeric = numericRows.includes(row.label);
-                const values = cursos.map((c) => {
-                  const raw = row.render(c);
-                  return raw !== "—" ? parseFloat(raw) : null;
-                });
+                const values = cursos.map((c) => { const raw = row.render(c); return raw !== "—" ? parseFloat(raw) : null; });
                 const validVals = values.filter((v): v is number => v !== null);
                 const minVal = validVals.length > 0 ? Math.min(...validVals) : null;
                 const maxVal = validVals.length > 0 ? Math.max(...validVals) : null;
-
                 return (
                   <tr key={row.label} className="border-t border-border/20">
                     <td className="px-5 py-2.5 text-xs font-semibold text-muted-foreground">{row.label}</td>
                     {cursos.map((c) => {
                       const val = row.render(c);
                       const numVal = val !== "—" ? parseFloat(val) : null;
-                      const isBest = isNumeric && numVal !== null && validVals.length > 1 &&
-                        (row.label === "Vagas" ? numVal === maxVal : numVal === minVal);
-                      const isWorst = isNumeric && numVal !== null && validVals.length > 1 &&
-                        (row.label === "Vagas" ? numVal === minVal : numVal === maxVal);
+                      const isBest = isNumeric && numVal !== null && validVals.length > 1 && (row.label === "Vagas" ? numVal === maxVal : numVal === minVal);
+                      const isWorst = isNumeric && numVal !== null && validVals.length > 1 && (row.label === "Vagas" ? numVal === minVal : numVal === maxVal);
                       return (
-                        <td
-                          key={c.id}
-                          className={`px-5 py-2.5 font-medium tabular-nums ${
-                            isBest ? "font-bold text-primary" : isWorst ? "text-destructive/70" : "text-foreground"
-                          }`}
-                        >
+                        <td key={c.id} className={`px-5 py-2.5 font-medium tabular-nums ${isBest ? "font-bold text-primary" : isWorst ? "text-destructive/70" : "text-foreground"}`}>
                           {val}
                         </td>
                       );
@@ -252,7 +208,6 @@ function ComparadorModal({
             </tbody>
           </table>
         </div>
-
         {cursos.length < MAX_COMPARE && (
           <p className="px-5 py-3 text-xs text-muted-foreground/60">
             Podes adicionar mais {MAX_COMPARE - cursos.length} curso{MAX_COMPARE - cursos.length !== 1 ? "s" : ""} — clica em "+" nos cards acima.
@@ -279,6 +234,7 @@ export function ExploradorCursos({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [comparar, setComparar] = useState<Curso[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [modo, setModo] = useState<ModoTabela>("licenciaturas");
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query.trim()), 300);
@@ -287,27 +243,36 @@ export function ExploradorCursos({
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [debouncedQuery, natureza, tipoEnsino]);
+  }, [debouncedQuery, natureza, tipoEnsino, modo]);
+
+  // Limpar comparador ao trocar de modo
+  useEffect(() => {
+    setComparar([]);
+  }, [modo]);
 
   const grade = parseFloat(myGrade.replace(",", ".")) || 0;
   const q = debouncedQuery;
   const isSearching = q.length >= 2 || natureza !== "all" || tipoEnsino !== "all";
+  const isCtesp = modo === "ctesps";
 
   const { data: cursos = [], isLoading, error } = useQuery({
-    queryKey: ["cursos", q, natureza, tipoEnsino],
+    queryKey: ["cursos", q, natureza, tipoEnsino, modo],
     queryFn: async () => {
       const FETCH_SIZE = 1000;
       let allData: Curso[] = [];
       let from = 0;
+      const tabela = isCtesp ? "unicalc_ctesps" : "unicalc_cursos";
 
       while (true) {
         let req = supabase
-          .from("unicalc_cursos")
+          .from(tabela)
           .select("id, nome_instituicao, tipo_ensino, natureza, nome_curso, grau, vagas_estimadas, media_2024, media_2023, media_2022");
 
         if (q.length >= 2) req = req.or(`nome_curso.ilike.%${q}%,nome_instituicao.ilike.%${q}%`);
-        if (natureza !== "all") req = req.eq("natureza", natureza);
-        if (tipoEnsino !== "all") req = req.eq("tipo_ensino", tipoEnsino);
+        if (!isCtesp) {
+          if (natureza !== "all") req = req.eq("natureza", natureza);
+          if (tipoEnsino !== "all") req = req.eq("tipo_ensino", tipoEnsino);
+        }
 
         const { data, error } = await req.order("nome_curso", { ascending: true }).range(from, from + FETCH_SIZE - 1);
 
@@ -343,6 +308,43 @@ export function ExploradorCursos({
 
   return (
     <div className={comparar.length > 0 ? "pb-24" : ""}>
+      {/* Toggle Licenciaturas / CTeSPs */}
+      <div className="mb-5 flex items-center justify-center">
+        <div className="flex rounded-2xl glass p-1 gap-1">
+          <button
+            type="button"
+            onClick={() => setModo("licenciaturas")}
+            className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all ${
+              modo === "licenciaturas"
+                ? "bg-gradient-brand text-primary-foreground shadow-glow-sky"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <GraduationCap className="h-4 w-4" />
+            Licenciaturas & Mestrados
+          </button>
+          <button
+            type="button"
+            onClick={() => setModo("ctesps")}
+            className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all ${
+              modo === "ctesps"
+                ? "bg-gradient-brand text-primary-foreground shadow-glow-sky"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <BookOpen className="h-4 w-4" />
+            CTeSPs
+          </button>
+        </div>
+      </div>
+
+      {/* Banner informativo CTeSPs */}
+      {isCtesp && (
+        <div className="mb-5 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
+          <span className="font-semibold text-primary">ℹ️ Acesso local</span> — Os CTeSPs não fazem parte do Concurso Nacional de Acesso. A candidatura é feita diretamente em cada instituição (currículo, provas ou entrevista).
+        </div>
+      )}
+
       {/* Filtros */}
       <div className="flex flex-col gap-4">
         <div className="relative">
@@ -350,33 +352,39 @@ export function ExploradorCursos({
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Procura por curso ou instituição..."
+            placeholder={isCtesp ? "Procura por CTeSP ou instituição..." : "Procura por curso ou instituição..."}
             className="w-full rounded-2xl border border-input bg-background/40 py-3.5 pl-12 pr-4 text-base outline-none transition-shadow placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/40"
           />
         </div>
 
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-2">
-            <FilterChip active={natureza === "all"} onClick={() => setNatureza("all")}>Todas</FilterChip>
-            <FilterChip active={natureza === "Público"} onClick={() => setNatureza("Público")}>Público</FilterChip>
-            <FilterChip active={natureza === "Privado"} onClick={() => setNatureza("Privado")}>Privado</FilterChip>
-            <span className="mx-1 self-center text-muted-foreground/40">|</span>
-            <FilterChip active={tipoEnsino === "all"} onClick={() => setTipoEnsino("all")}>Todos</FilterChip>
-            <FilterChip active={tipoEnsino === "Universitário"} onClick={() => setTipoEnsino("Universitário")}>Universitário</FilterChip>
-            <FilterChip active={tipoEnsino === "Politécnico"} onClick={() => setTipoEnsino("Politécnico")}>Politécnico</FilterChip>
-          </div>
+          {/* Filtros de natureza/tipo só para licenciaturas */}
+          {!isCtesp && (
+            <div className="flex flex-wrap gap-2">
+              <FilterChip active={natureza === "all"} onClick={() => setNatureza("all")}>Todas</FilterChip>
+              <FilterChip active={natureza === "Público"} onClick={() => setNatureza("Público")}>Público</FilterChip>
+              <FilterChip active={natureza === "Privado"} onClick={() => setNatureza("Privado")}>Privado</FilterChip>
+              <span className="mx-1 self-center text-muted-foreground/40">|</span>
+              <FilterChip active={tipoEnsino === "all"} onClick={() => setTipoEnsino("all")}>Todos</FilterChip>
+              <FilterChip active={tipoEnsino === "Universitário"} onClick={() => setTipoEnsino("Universitário")}>Universitário</FilterChip>
+              <FilterChip active={tipoEnsino === "Politécnico"} onClick={() => setTipoEnsino("Politécnico")}>Politécnico</FilterChip>
+            </div>
+          )}
+          {isCtesp && <div />}
 
-          <label className="flex items-center gap-2 rounded-2xl glass px-3 py-2">
-            <Target className="h-4 w-4 text-accent" />
-            <span className="text-sm text-muted-foreground">A minha nota</span>
-            <input
-              inputMode="decimal"
-              value={myGrade}
-              onChange={(e) => setMyGrade(e.target.value)}
-              placeholder="0–200"
-              className="w-20 rounded-lg border border-input bg-background/40 px-2 py-1 text-sm font-semibold outline-none focus:border-accent"
-            />
-          </label>
+          {!isCtesp && (
+            <label className="flex items-center gap-2 rounded-2xl glass px-3 py-2">
+              <Target className="h-4 w-4 text-accent" />
+              <span className="text-sm text-muted-foreground">A minha nota</span>
+              <input
+                inputMode="decimal"
+                value={myGrade}
+                onChange={(e) => setMyGrade(e.target.value)}
+                placeholder="0–200"
+                className="w-20 rounded-lg border border-input bg-background/40 px-2 py-1 text-sm font-semibold outline-none focus:border-accent"
+              />
+            </label>
+          )}
         </div>
       </div>
 
@@ -389,22 +397,22 @@ export function ExploradorCursos({
       {isLoading ? (
         <div className="mt-10 flex flex-col items-center gap-2 text-center text-muted-foreground">
           <Loader2 className="h-8 w-8 animate-spin" />
-          <p>A carregar cursos…</p>
+          <p>A carregar {isCtesp ? "CTeSPs" : "cursos"}…</p>
         </div>
       ) : (
         <>
           {!error && cursos.length > 0 && (
             <p className="mt-4 text-xs text-muted-foreground/60">
               {isSearching
-                ? `${cursos.length} curso${cursos.length !== 1 ? "s" : ""} encontrado${cursos.length !== 1 ? "s" : ""}`
-                : "A mostrar cursos em destaque"}
+                ? `${cursos.length} ${isCtesp ? "CTeSP" : "curso"}${cursos.length !== 1 ? "s" : ""} encontrado${cursos.length !== 1 ? "s" : ""}`
+                : `A mostrar ${isCtesp ? "CTeSPs" : "cursos"} em destaque`}
             </p>
           )}
 
           <div className="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {visibleCursos.map((c) => {
               const lastGrade = c.media_2024 ?? c.media_2023 ?? c.media_2022 ?? 0;
-              const eligible = grade > 0 && lastGrade > 0 && grade >= lastGrade;
+              const eligible = !isCtesp && grade > 0 && lastGrade > 0 && grade >= lastGrade;
               const isInComparar = comparar.some((x) => x.id === c.id);
               const compareFull = comparar.length >= MAX_COMPARE && !isInComparar;
 
@@ -418,11 +426,18 @@ export function ExploradorCursos({
                   } ${isInComparar ? "ring-2 ring-primary/60 shadow-glow-sky" : ""}`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <span className="rounded-full bg-primary/15 px-2.5 py-1 text-xs font-semibold text-primary">
-                      {c.grau ?? c.tipo_ensino ?? "Curso"}
-                    </span>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="rounded-full bg-primary/15 px-2.5 py-1 text-xs font-semibold text-primary">
+                        {c.grau ?? c.tipo_ensino ?? "Curso"}
+                      </span>
+                      {isCtesp && (
+                        <span className="rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-accent">
+                          📝 Acesso Local
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2">
-                      <MiniBars curso={c} />
+                      {!isCtesp && <MiniBars curso={c} />}
                       <button
                         type="button"
                         onClick={(e) => toggleComparar(c, e)}
@@ -445,27 +460,38 @@ export function ExploradorCursos({
                   <p className="mt-1 text-sm text-muted-foreground">{c.nome_instituicao}</p>
 
                   <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    {c.vagas_estimadas != null && (
+                    {c.vagas_estimadas != null && c.vagas_estimadas > 0 && (
                       <span className="flex items-center gap-1">
                         <Users className="h-3.5 w-3.5" />
                         {c.vagas_estimadas} vagas
                       </span>
                     )}
-                    <TrendAlert curso={c} />
+                    {!isCtesp && <TrendAlert curso={c} />}
                   </div>
 
                   <div className="mt-4 flex items-end justify-between border-t border-border pt-4">
-                    <div>
-                      <div className="text-xs text-muted-foreground">Último colocado (2024)</div>
-                      <div className="font-display text-2xl font-bold text-gradient">
-                        {lastGrade > 0 ? lastGrade.toFixed(1) : "—"}
+                    {isCtesp ? (
+                      <div>
+                        <div className="text-xs text-muted-foreground">Admissão</div>
+                        <div className="mt-0.5 text-sm font-semibold text-muted-foreground">
+                          Concurso local
+                        </div>
                       </div>
-                    </div>
-                    {eligible && (
-                      <span className="flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-accent">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Entras!
-                      </span>
+                    ) : (
+                      <>
+                        <div>
+                          <div className="text-xs text-muted-foreground">Último colocado (2024)</div>
+                          <div className="font-display text-2xl font-bold text-gradient">
+                            {lastGrade > 0 ? lastGrade.toFixed(1) : "—"}
+                          </div>
+                        </div>
+                        {eligible && (
+                          <span className="flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-accent">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Entras!
+                          </span>
+                        )}
+                      </>
                     )}
                   </div>
                 </button>
@@ -481,7 +507,7 @@ export function ExploradorCursos({
                 className="flex items-center gap-2 rounded-2xl glass px-6 py-3 text-sm font-semibold text-muted-foreground transition-all hover:text-foreground hover:shadow-glow-sky"
               >
                 <Plus className="h-4 w-4" />
-                Ver mais {Math.min(PAGE_SIZE, cursos.length - visibleCount)} cursos
+                Ver mais {Math.min(PAGE_SIZE, cursos.length - visibleCount)} {isCtesp ? "CTeSPs" : "cursos"}
               </button>
             </div>
           )}
@@ -491,11 +517,10 @@ export function ExploradorCursos({
       {!isLoading && !error && cursos.length === 0 && (
         <div className="mt-10 flex flex-col items-center gap-2 text-center text-muted-foreground">
           <Compass className="h-8 w-8" />
-          <p>Nenhum curso encontrado. Tenta outra pesquisa.</p>
+          <p>Nenhum {isCtesp ? "CTeSP" : "curso"} encontrado. Tenta outra pesquisa.</p>
         </div>
       )}
 
-      {/* Barra discreta no fundo */}
       <ComparadorBar
         cursos={comparar}
         onRemove={(id) => setComparar((prev) => prev.filter((c) => c.id !== id))}
@@ -503,7 +528,6 @@ export function ExploradorCursos({
         onOpen={() => setModalOpen(true)}
       />
 
-      {/* Modal de comparação */}
       {modalOpen && (
         <ComparadorModal
           cursos={comparar}

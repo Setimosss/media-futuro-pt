@@ -59,6 +59,51 @@ export type Database = {
         }
         Relationships: []
       }
+      unicalc_ctesps: {
+        Row: {
+          cidade: string | null
+          created_at: string
+          grau: string | null
+          id: string
+          media_2022: number | null
+          media_2023: number | null
+          media_2024: number | null
+          natureza: string | null
+          nome_curso: string
+          nome_instituicao: string
+          tipo_ensino: string | null
+          vagas_estimadas: number | null
+        }
+        Insert: {
+          cidade?: string | null
+          created_at?: string
+          grau?: string | null
+          id?: string
+          media_2022?: number | null
+          media_2023?: number | null
+          media_2024?: number | null
+          natureza?: string | null
+          nome_curso: string
+          nome_instituicao: string
+          tipo_ensino?: string | null
+          vagas_estimadas?: number | null
+        }
+        Update: {
+          cidade?: string | null
+          created_at?: string
+          grau?: string | null
+          id?: string
+          media_2022?: number | null
+          media_2023?: number | null
+          media_2024?: number | null
+          natureza?: string | null
+          nome_curso?: string
+          nome_instituicao?: string
+          tipo_ensino?: string | null
+          vagas_estimadas?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -88,6 +88,43 @@ export function TendenciaMedias({ curso }: { curso?: Curso | null }) {
     );
   }
 
+  // Empty state para CTeSPs (sem dados históricos de notas)
+  const isCtesp = curso.media_2022 == null && curso.media_2023 == null && curso.media_2024 == null;
+  if (isCtesp) {
+    return (
+      <div className="rounded-3xl glass p-6 sm:p-8">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent/15 text-accent">
+            <LineChartIcon className="h-5 w-5" />
+          </span>
+          <div>
+            <h3 className="font-display text-xl font-bold">{curso.nome_curso}</h3>
+            <p className="text-sm text-muted-foreground">{curso.nome_instituicao}</p>
+          </div>
+        </div>
+        <div className="mt-8 flex h-48 flex-col items-center justify-center gap-3 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+            <span className="text-2xl">📝</span>
+          </div>
+          <div>
+            <p className="font-semibold text-foreground">Acesso por concurso local</p>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              Os CTeSPs não fazem parte do Concurso Nacional de Acesso. A candidatura é feita diretamente em cada instituição através de currículo, provas ou entrevista.
+            </p>
+          </div>
+          <a
+            href="https://www.dges.gov.pt/pt/pagina/ctesp"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 rounded-xl bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-colors hover:bg-accent/20"
+          >
+            Saber mais na DGES →
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   const history = [
     { year: "2022", grade: curso.media_2022 },
     { year: "2023", grade: curso.media_2023 },
