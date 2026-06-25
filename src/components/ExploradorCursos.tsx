@@ -268,57 +268,48 @@ export function ExploradorCursos({
 
   const { data: cursos = [], isLoading, error } = useQuery({
     queryKey: ["cursos", q, natureza, tipoEnsino, distrito, modo],
+    staleTime: 1000 * 60 * 5, // 5 minutos de cache
     queryFn: async () => {
-      const FETCH_SIZE = 1000;
-      let allData: Curso[] = [];
-      let from = 0;
-      const tabela = isCtesp ? "unicalc_ctesps" : "unicalc_cursos";
+      const columns = "id, nome_instituicao, tipo_ensino, natureza, nome_curso, grau, vagas_estimadas, media_2024, media_2023, media_2022";
+      const columnsWithDistrito = `${columns}, distrito`;
 
-      while (true) {
-        const columns = "id, nome_instituicao, tipo_ensino, natureza, nome_curso, grau, vagas_estimadas, media_2024, media_2023, media_2022";
-        const columnsWithDistrito = `${columns}, distrito`;
+      if (isCtesp) {
+        const req = supabase
+          .from("unicalc_ctesps")
+          .select(columns);
 
-        let result;
-
-        if (isCtesp) {
-          result = await supabase
-            .from("unicalc_ctesps")
-            .select(columns)
-            .or(`nome_curso.ilike.%${q}%,nome_instituicao.ilike.%${q}%`)
-            .order("nome_curso", { ascending: true })
-            .range(from, from + FETCH_SIZE - 1);
-        } else {
-          const req = supabase
-            .from("unicalc_cursos")
-            .select(columnsWithDistrito)
-            .or(`nome_curso.ilike.%${q}%,nome_instituicao.ilike.%${q}%`);
-
-          if (natureza !== "all") req.eq("natureza", natureza);
-          if (tipoEnsino !== "all") req.eq("tipo_ensino", tipoEnsino);
-          if (distrito !== "all") req.eq("distrito", distrito);
-
-          result = await req.order("nome_curso", { ascending: true }).range(from, from + FETCH_SIZE - 1);
+        if (q.length >= 2) {
+          req.or(`nome_curso.ilike.%${q}%,nome_instituicao.ilike.%${q}%`);
         }
 
-        const { data, error } = result;
+        const { data, error } = await req
+          .order("nome_curso", { ascending: true })
+          .limit(200);
 
         if (error) throw error;
-        if (!data || data.length === 0) break;
-        allData = [...allData, ...(data as unknown as Curso[])];
-        if (data.length < FETCH_SIZE) break;
-        from += FETCH_SIZE;
-      }
+        return (data ?? []) as unknown as Curso[];
+      } else {
+        const req = supabase
+          .from("unicalc_cursos")
+          .select(columnsWithDistrito);
 
-      if (!isSearching) {
-        const comMedia = allData.filter(c => c.media_2024 != null || c.media_2023 != null || c.media_2022 != null);
-        const semMedia = allData.filter(c => c.media_2024 == null && c.media_2023 == null && c.media_2022 == null);
-        for (let i = comMedia.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [comMedia[i], comMedia[j]] = [comMedia[j], comMedia[i]];
+        if (q.length >= 2) {
+          req.or(`nome_curso.ilike.%${q}%,nome_instituicao.ilike.%${q}%`);
         }
-        allData = [...comMedia, ...semMedia];
+        if (natureza !== "all") req.eq("natureza", natureza);
+        if (tipoEnsino !== "all") req.eq("tipo_ensino", tipoEnsino);
+        if (distrito !== "all") req.eq("distrito", distrito);
+
+        if (!isSearching) {
+          req.not("media_2024", "is", null).limit(100);
+        } else {
+          req.order("nome_curso", { ascending: true }).limit(300);
+        }
+
+        const { data, error } = await req;
+        if (error) throw error;
+        return (data ?? []) as unknown as Curso[];
       }
-      return allData;
     },
   });
 
