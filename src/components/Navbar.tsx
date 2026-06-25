@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { GraduationCap, Calculator, Compass, Sparkles, LogOut, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/AuthModal";
@@ -13,6 +13,17 @@ export function Navbar() {
   const { user, loading, signOut } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <>
@@ -43,7 +54,7 @@ export function Navbar() {
           {!loading && (
             <>
               {user ? (
-                <div className="relative">
+                <div className="relative" ref={menuRef}>
                   <button
                     onClick={() => setMenuOpen(!menuOpen)}
                     className="flex items-center gap-2 rounded-xl border border-border/60 bg-secondary/60 px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary"
@@ -62,6 +73,14 @@ export function Navbar() {
                         <p className="text-xs text-muted-foreground">Sessão iniciada como</p>
                         <p className="text-sm font-medium truncate">{user.email}</p>
                       </div>
+                      <a
+                        href="/perfil"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex w-full items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-secondary transition-colors"
+                      >
+                        <User className="h-4 w-4" />
+                        O meu perfil
+                      </a>
                       <button
                         onClick={() => { signOut(); setMenuOpen(false); }}
                         className="flex w-full items-center gap-2 px-4 py-3 text-sm text-destructive hover:bg-destructive/10 transition-colors"

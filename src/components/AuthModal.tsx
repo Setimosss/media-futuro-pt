@@ -46,7 +46,15 @@ export function AuthModal({ open, onClose }: Props) {
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        setError("Email ou password incorretos.");
+        if (error.message.includes("Invalid login credentials")) {
+          setError("Email ou password incorretos. Verifica os teus dados.");
+        } else if (error.message.includes("Email not confirmed")) {
+          setError("O teu email ainda não foi confirmado. Verifica a tua caixa de entrada.");
+        } else if (error.message.includes("Too many requests")) {
+          setError("Demasiadas tentativas. Aguarda alguns minutos e tenta novamente.");
+        } else {
+          setError("Erro ao entrar. Tenta novamente.");
+        }
       } else {
         onClose();
         reset();
@@ -54,7 +62,15 @@ export function AuthModal({ open, onClose }: Props) {
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) {
-        setError("Erro ao criar conta. Tenta novamente.");
+        if (error.message.includes("User already registered")) {
+          setError("Já existe uma conta com este email. Tenta entrar.");
+        } else if (error.message.includes("Password should be at least")) {
+          setError("A password deve ter pelo menos 6 caracteres.");
+        } else if (error.message.includes("Unable to validate email")) {
+          setError("Email inválido. Verifica o endereço introduzido.");
+        } else {
+          setError("Erro ao criar conta. Tenta novamente.");
+        }
       } else {
         setSuccess("Conta criada! Verifica o teu email para confirmar.");
       }
@@ -150,6 +166,33 @@ export function AuthModal({ open, onClose }: Props) {
             </div>
           </div>
         </div>
+
+        {mode === "login" && (
+          <div className="mt-2 text-right">
+            <button
+              type="button"
+              onClick={async () => {
+                if (!email) {
+                  setError("Introduz o teu email primeiro.");
+                  return;
+                }
+                setLoading(true);
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                  redirectTo: `${window.location.origin}/perfil`,
+                });
+                setLoading(false);
+                if (error) {
+                  setError("Erro ao enviar email. Verifica o endereço.");
+                } else {
+                  setSuccess("Email de recuperação enviado! Verifica a tua caixa de entrada.");
+                }
+              }}
+              className="text-xs text-muted-foreground hover:text-primary transition-colors"
+            >
+              Esqueci-me da password
+            </button>
+          </div>
+        )}
 
         {/* Erro / Sucesso */}
         {error && (
