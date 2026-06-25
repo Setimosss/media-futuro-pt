@@ -1,8 +1,10 @@
 import { useMemo, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Users, Compass, CheckCircle2, Target, Loader2, Plus, TrendingUp, TrendingDown, GitCompare, X, Trophy, GraduationCap, BookOpen, MapPin } from "lucide-react";
+import { Search, Users, Compass, CheckCircle2, Target, Loader2, Plus, TrendingUp, TrendingDown, GitCompare, X, Trophy, GraduationCap, BookOpen, MapPin, Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Curso } from "@/types/curso";
+import { useFavoritos } from "@/hooks/useFavoritos";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Natureza = "all" | "Público" | "Privado";
 type TipoEnsino = "all" | "Universitário" | "Politécnico";
@@ -233,6 +235,8 @@ export function ExploradorCursos({
   const [comparar, setComparar] = useState<Curso[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modo, setModo] = useState<ModoTabela>("licenciaturas");
+  const { user } = useAuth();
+  const { isFavorito, toggleFavorito } = useFavoritos();
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(query.trim()), 300);
@@ -247,6 +251,15 @@ export function ExploradorCursos({
     setComparar([]);
     setDistrito("all");
   }, [modo]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const search = params.get("search");
+    if (search) {
+      setQuery(search);
+      window.history.replaceState({}, "", window.location.pathname + "#cursos");
+    }
+  }, []);
 
   const grade = parseFloat(myGrade.replace(",", ".")) || 0;
   const q = debouncedQuery;
@@ -468,6 +481,25 @@ export function ExploradorCursos({
                     </div>
                     <div className="flex items-center gap-2">
                       {!isCtesp && <MiniBars curso={c} />}
+
+                      {user && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavorito({ id: c.id, nome: c.nome_curso ?? "", instituicao: c.nome_instituicao ?? "" });
+                          }}
+                          title={isFavorito(c.id) ? "Remover dos favoritos" : "Guardar nos favoritos"}
+                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-all ${
+                            isFavorito(c.id)
+                              ? "border-accent bg-accent/20 text-accent"
+                              : "border-border/60 text-muted-foreground hover:border-accent hover:bg-accent/10 hover:text-accent"
+                          }`}
+                        >
+                          <Heart className={`h-3.5 w-3.5 ${isFavorito(c.id) ? "fill-current" : ""}`} />
+                        </button>
+                      )}
+
                       <button
                         type="button"
                         onClick={(e) => toggleComparar(c, e)}

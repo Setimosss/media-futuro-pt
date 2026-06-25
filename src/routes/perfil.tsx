@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { User, Mail, Calendar, LogOut, Shield } from "lucide-react";
+import { User, Mail, Calendar, LogOut, Shield, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navbar } from "@/components/Navbar";
+import { useFavoritos } from "@/hooks/useFavoritos";
 
 export const Route = createFileRoute("/perfil")({
   component: PerfilPage,
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/perfil")({
 
 function PerfilPage() {
   const { user, loading, signOut } = useAuth();
+  const { favoritos, isLoading: favLoading } = useFavoritos();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -80,21 +82,42 @@ function PerfilPage() {
           </div>
         </div>
 
-        {/* Favoritos placeholder */}
+        {/* Favoritos */}
         <div className="mt-6 rounded-3xl glass border border-border/60 p-6">
           <h2 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-4">
             Cursos favoritos
           </h2>
-          <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
-            <span className="text-3xl mb-2">🎓</span>
-            <p className="text-sm">Ainda não guardaste nenhum curso.</p>
-            <a
-              href="/#cursos"
-              className="mt-3 text-sm font-semibold text-primary hover:underline"
-            >
-              Explorar cursos →
-            </a>
-          </div>
+          {favLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : favoritos.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+              <span className="text-3xl mb-2">🎓</span>
+              <p className="text-sm">Ainda não guardaste nenhum curso.</p>
+              <a href="/#cursos" className="mt-3 text-sm font-semibold text-primary hover:underline">
+                Explorar cursos →
+              </a>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {favoritos.map((f) => (
+                <div key={f.id} className="flex items-center justify-between rounded-2xl bg-background/30 px-4 py-3">
+                  <div>
+                    <p className="text-sm font-semibold">{f.curso_nome}</p>
+                    <p className="text-xs text-muted-foreground">{f.instituicao}</p>
+                  </div>
+
+                  <a
+                    href={`/?search=${encodeURIComponent(f.curso_nome)}#cursos`}
+                    className="text-xs font-semibold text-primary hover:underline shrink-0 ml-4"
+                  >
+                    Ver →
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Terminar sessão */}
