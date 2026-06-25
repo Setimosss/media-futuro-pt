@@ -10,7 +10,7 @@ type Natureza = "all" | "Público" | "Privado";
 type TipoEnsino = "all" | "Universitário" | "Politécnico";
 type ModoTabela = "licenciaturas" | "ctesps";
 
-const PAGE_SIZE = 17;
+const PAGE_SIZE = 15;
 const MAX_COMPARE = 3;
 
 const DISTRITOS = [
@@ -274,39 +274,52 @@ export function ExploradorCursos({
       const columnsWithDistrito = `${columns}, distrito`;
 
       if (isCtesp) {
-        const req = supabase
-          .from("unicalc_ctesps")
-          .select(columns);
+        let data, error;
 
         if (q.length >= 2) {
-          req.or(`nome_curso.ilike.%${q}%,nome_instituicao.ilike.%${q}%`);
+          ({ data, error } = await (supabase as any)
+            .rpc("search_ctesps", { search_term: q })
+            .select(columns)
+            .order("nome_curso", { ascending: true })
+            .limit(200));
+        } else {
+          ({ data, error } = await supabase
+            .from("unicalc_ctesps")
+            .select(columns)
+            .order("nome_curso", { ascending: true })
+            .limit(200));
         }
-
-        const { data, error } = await req
-          .order("nome_curso", { ascending: true })
-          .limit(200);
 
         if (error) throw error;
         return (data ?? []) as unknown as Curso[];
       } else {
-        const req = supabase
-          .from("unicalc_cursos")
-          .select(columnsWithDistrito);
+        let data, error;
 
         if (q.length >= 2) {
-          req.or(`nome_curso.ilike.%${q}%,nome_instituicao.ilike.%${q}%`);
-        }
-        if (natureza !== "all") req.eq("natureza", natureza);
-        if (tipoEnsino !== "all") req.eq("tipo_ensino", tipoEnsino);
-        if (distrito !== "all") req.eq("distrito", distrito);
+          let req = (supabase as any)
+            .rpc("search_cursos", { search_term: q })
+            .select(columnsWithDistrito);
 
-        if (!isSearching) {
-          req.not("media_2024", "is", null).limit(100);
+          if (natureza !== "all") req = req.eq("natureza", natureza);
+          if (tipoEnsino !== "all") req = req.eq("tipo_ensino", tipoEnsino);
+          if (distrito !== "all") req = req.eq("distrito", distrito);
+
+          ({ data, error } = await req
+            .order("nome_curso", { ascending: true })
+            .limit(300));
         } else {
-          req.order("nome_curso", { ascending: true }).limit(300);
+          let req = supabase
+            .from("unicalc_cursos")
+            .select(columnsWithDistrito)
+            .not("media_2024", "is", null);
+
+          if (natureza !== "all") req = req.eq("natureza", natureza);
+          if (tipoEnsino !== "all") req = req.eq("tipo_ensino", tipoEnsino);
+          if (distrito !== "all") req = req.eq("distrito", distrito);
+
+          ({ data, error } = await req.limit(100));
         }
 
-        const { data, error } = await req;
         if (error) throw error;
         return (data ?? []) as unknown as Curso[];
       }

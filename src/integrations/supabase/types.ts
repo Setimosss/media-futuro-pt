@@ -139,7 +139,41 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      search_ctesps: {
+        Args: {
+          search_term: string
+        }
+        Returns: {
+          id: string
+          nome_instituicao: string
+          tipo_ensino: string | null
+          natureza: string | null
+          nome_curso: string
+          grau: string | null
+          vagas_estimadas: number | null
+          media_2024: number | null
+          media_2023: number | null
+          media_2022: number | null
+        }[]
+      }
+      search_cursos: {
+        Args: {
+          search_term: string
+        }
+        Returns: {
+          id: string
+          nome_instituicao: string
+          tipo_ensino: string | null
+          natureza: string | null
+          nome_curso: string
+          grau: string | null
+          vagas_estimadas: number | null
+          media_2024: number | null
+          media_2023: number | null
+          media_2022: number | null
+          distrito: string | null
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
