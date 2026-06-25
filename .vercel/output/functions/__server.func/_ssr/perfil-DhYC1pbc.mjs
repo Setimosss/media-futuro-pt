@@ -1,7 +1,7 @@
 import { r as reactExports, j as jsxRuntimeExports } from "../_libs/react.mjs";
 import { d as useNavigate } from "../_libs/tanstack__react-router.mjs";
-import { u as useAuth } from "./router-Cn2cnVyu.mjs";
-import { u as useFavoritos, N as Navbar } from "./useFavoritos-0zKmFOEp.mjs";
+import { u as useAuth } from "./router-6MYNikdc.mjs";
+import { u as useFavoritos, N as Navbar } from "./useFavoritos-df6JAi9q.mjs";
 import { U as User, M as Mail, C as Calendar, S as Shield, L as LoaderCircle, a as LogOut } from "../_libs/lucide-react.mjs";
 import "../_libs/tanstack__router-core.mjs";
 import "../_libs/tanstack__history.mjs";

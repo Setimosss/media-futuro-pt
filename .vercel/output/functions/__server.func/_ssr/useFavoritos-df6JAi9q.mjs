@@ -1,5 +1,5 @@
 import { r as reactExports, j as jsxRuntimeExports } from "../_libs/react.mjs";
-import { u as useAuth } from "./router-Cn2cnVyu.mjs";
+import { u as useAuth } from "./router-6MYNikdc.mjs";
 import { s as supabase } from "./client-D6qnU8Yy.mjs";
 import { u as useQueryClient, a as useQuery, b as useMutation } from "../_libs/tanstack__react-query.mjs";
 import { G as GraduationCap, b as Calculator, c as Sparkles, d as Compass, U as User, a as LogOut, X, e as LogIn, M as Mail, f as Lock, E as EyeOff, g as Eye } from "../_libs/lucide-react.mjs";

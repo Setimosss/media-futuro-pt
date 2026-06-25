@@ -134,6 +134,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_perfil_aluno: {
+        Row: {
+          id: string
+          user_id: string
+          ano_escolar: string | null
+          objetivo_tipo: string | null
+          nota_alvo: number | null
+          curso_alvo_nome: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          ano_escolar?: string | null
+          objetivo_tipo?: string | null
+          nota_alvo?: number | null
+          curso_alvo_nome?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          ano_escolar?: string | null
+          objetivo_tipo?: string | null
+          nota_alvo?: number | null
+          curso_alvo_nome?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
