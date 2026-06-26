@@ -164,6 +164,81 @@ export type Database = {
         }
         Relationships: []
       }
+      user_disciplinas: {
+        Row: {
+          id: string
+          user_id: string
+          nome: string
+          ano: string
+          peso_testes: number
+          peso_trabalhos: number
+          peso_participacao: number
+          tem_exame: boolean
+          peso_exame_final: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          nome: string
+          ano: string
+          peso_testes?: number
+          peso_trabalhos?: number
+          peso_participacao?: number
+          tem_exame?: boolean
+          peso_exame_final?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          nome?: string
+          ano?: string
+          peso_testes?: number
+          peso_trabalhos?: number
+          peso_participacao?: number
+          tem_exame?: boolean
+          peso_exame_final?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      user_avaliacoes: {
+        Row: {
+          id: string
+          user_id: string
+          disciplina_id: string
+          tipo: "teste" | "trabalho" | "participacao" | "exame"
+          nome: string
+          nota: number
+          peso: number
+          data: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          disciplina_id: string
+          tipo: "teste" | "trabalho" | "participacao" | "exame"
+          nome: string
+          nota: number
+          peso: number
+          data: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          disciplina_id?: string
+          tipo?: "teste" | "trabalho" | "participacao" | "exame"
+          nome?: string
+          nota?: number
+          peso?: number
+          data?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

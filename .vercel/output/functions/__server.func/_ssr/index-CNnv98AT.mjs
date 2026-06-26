@@ -1,12 +1,12 @@
 import { r as reactExports, j as jsxRuntimeExports } from "../_libs/react.mjs";
-import { N as Navbar, u as useFavoritos } from "./useFavoritos-df6JAi9q.mjs";
+import { N as Navbar, u as useFavoritos } from "./useFavoritos-Ca-zP4-k.mjs";
 import { D as Dialog$1, a as DialogTrigger$1, b as DialogPortal$1, c as DialogContent$1, d as DialogClose, e as DialogTitle$1, f as DialogDescription$1, g as DialogOverlay$1 } from "../_libs/radix-ui__react-dialog.mjs";
 import { c as clsx } from "../_libs/clsx.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
 import { a as useQuery } from "../_libs/tanstack__react-query.mjs";
 import { s as supabase } from "./client-D6qnU8Yy.mjs";
-import { u as useAuth } from "./router-6MYNikdc.mjs";
-import { G as GraduationCap, c as Sparkles, A as ArrowRight, B as BookOpen, T as TrendingUp, b as Calculator, h as Target, i as ArrowLeft, P as Plus, I as Info, j as Trophy, k as Check, l as Share2, m as ChartLine, n as MousePointerClick, o as TrendingDown, p as Minus, q as Search, r as MapPin, L as LoaderCircle, H as Heart, X, s as Users, t as CircleCheck, d as Compass, u as ChevronDown, v as Trash2, w as GitCompare, x as Grid3x3 } from "../_libs/lucide-react.mjs";
+import { u as useAuth } from "./router-XfPU3z5m.mjs";
+import { G as GraduationCap, h as Sparkles, A as ArrowRight, B as BookOpen, m as TrendingUp, g as Calculator, T as Target, f as ArrowLeft, P as Plus, I as Info, n as Trophy, o as Check, p as Share2, q as ChartLine, r as MousePointerClick, s as TrendingDown, t as Minus, d as Search, u as MapPin, a as LoaderCircle, H as Heart, X, v as Users, w as CircleCheck, i as Compass, x as ChevronDown, y as Trash2, z as GitCompare, D as Grid3x3 } from "../_libs/lucide-react.mjs";
 import { R as ResponsiveContainer, A as AreaChart, C as CartesianGrid, X as XAxis, Y as YAxis, a as ReferenceLine, T as Tooltip, b as Area } from "../_libs/recharts.mjs";
 import "../_libs/radix-ui__primitive.mjs";
 import "../_libs/radix-ui__react-compose-refs.mjs";

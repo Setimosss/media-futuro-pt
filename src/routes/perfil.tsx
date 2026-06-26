@@ -5,6 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navbar } from "@/components/Navbar";
 import { useFavoritos } from "@/hooks/useFavoritos";
 import { OnboardingAluno } from "@/components/OnboardingAluno";
+import { DisciplinasManager } from "@/components/DisciplinasManager";
+import { AvaliacoesManager } from "@/components/AvaliacoesManager";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/perfil")({
@@ -141,6 +143,13 @@ function PerfilPage() {
                     </div>
                   </div>
                 </div>
+
+                <DisciplinasManager anoEscolar={perfilAluno.ano_escolar ?? "12"} />
+
+                <AvaliacoesManager
+                  anoEscolar={perfilAluno.ano_escolar ?? "12"}
+                  notaAlvo={perfilAluno.nota_alvo}
+                />
 
                 {/* Favoritos */}
                 <div className="rounded-3xl glass border border-border/60 p-6">

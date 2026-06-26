@@ -26,7 +26,7 @@ import "../_libs/iceberg-js.mjs";
 import "../_libs/supabase__auth-js.mjs";
 import "tslib";
 import "../_libs/supabase__functions-js.mjs";
-const appCss = "/assets/styles-piYhGt4x.css";
+const appCss = "/assets/styles-BLWsyIvK.css";
 function reportLovableError(error, context = {}) {
   if (typeof window === "undefined") return;
   window.__lovableEvents?.captureException?.(
@@ -209,11 +209,11 @@ const Route$2 = createFileRoute("/sitemap.xml")({
     }
   }
 });
-const $$splitComponentImporter$1 = () => import("./perfil-DhYC1pbc.mjs");
+const $$splitComponentImporter$1 = () => import("./perfil-Z8RPF6En.mjs");
 const Route$1 = createFileRoute("/perfil")({
   component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
-const $$splitComponentImporter = () => import("./index-CB6YzKtH.mjs");
+const $$splitComponentImporter = () => import("./index-CNnv98AT.mjs");
 const Route = createFileRoute("/")({
   head: () => ({
     meta: [{
